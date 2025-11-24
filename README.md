@@ -77,19 +77,25 @@ progresso = trilha.progresso(MediaSimplesEstrategia())
     class Aula {
       - titulo: str
       - tarefas: List<TarefaEstudo>
+      + adicionar_tarefa(tarefa: TarefaEstudo): None
       + progresso(): float
       + exibir_dados(): str
     }
 
     class TarefaEstudo {
       <<abstract>>
+      - titulo: str
+      - descricao: Optional[str]
+      - data_realizacao: Optional[datetime]
+      - status: StatusTarefa
+      + iniciar_estudo(): None
+      + concluir(): None
       + progresso(): float
       + exibir_dados(): str
-      + concluir(): None
+      + definir_termino(): None
     }
 
     class TarefaQuiz {
-      - titulo: str
       - nota: float
       - nota_max: float
       + progresso(): float
@@ -97,37 +103,44 @@ progresso = trilha.progresso(MediaSimplesEstrategia())
     }
 
     class TarefaLeitura {
-      - titulo: str
-      - paginas_lidas: int
       - total_paginas: int
+      - paginas_lidas: int
       + progresso(): float
       + exibir_dados(): str
     }
-
+    
     class TarefaPratica {
-      - titulo: str
-      - etapas_concluidas: int
       - total_etapas: int
+      - etapas_concluidas: int
       + progresso(): float
       + exibir_dados(): str
     }
 
     class TarefaProjeto {
-      - titulo: str
-      - entregas_aprovadas: int
       - total_entregas: int
+      - entregas_aprovadas: int
       + progresso(): float
       + exibir_dados(): str
     }
 
+    class TarefaComPrazo {
+      <<decorator de TarefaEstudo>>
+      - base: TarefaEstudo
+      - prazo: Optional[datetime]
+      - penalidade: float   
+      + progresso(): float  
+      + concluir(): None
+      + exibir_dados(): str
+    }
+
     class TarefaFactory {
-      + criar(tipo: TipoTarefaEstudo, **kwargs): TarefaEstudo
+      + criar(tipo: TipoTarefaEstudo | str, **kwargs): TarefaEstudo
     }
 
     class EstrategiaProgresso {
       <<interface>>
       + calcular(trilha: Trilha): float
-    }
+    }    
 
     class MediaSimplesEstrategia {
       + calcular(trilha: Trilha): float
@@ -143,6 +156,13 @@ progresso = trilha.progresso(MediaSimplesEstrategia())
       LEITURA
       PRATICA
       PROJETO
+    }
+
+    class StatusTarefa {
+      <<enumeration>>
+      A_FAZER
+      EM_ANDAMENTO
+      CONCLUIDA
     }
 
 
@@ -290,7 +310,6 @@ class MediaSimplesEstrategia(EstrategiaProgresso):
         return 0.0 if not cursos else sum(c.progresso() for c in cursos) / len(cursos)
 
 
-# --- Uso rápido (em qualquer parte do projeto) ---
 from model.MediaSimplesEstrategia import MediaSimplesEstrategia
 
 progresso = trilha.progresso(MediaSimplesEstrategia())
