@@ -1,40 +1,29 @@
+# --- src/model/TarefaComPrazo.py ---
 from datetime import datetime
 from .TarefaEstudo import TarefaEstudo
 from .StatusTarefa import StatusTarefa
 
 class TarefaComPrazo(TarefaEstudo):
     """
-    Decorator = envolve uma TarefaEstudo e aplica penalidade no progresso
-    se a conclusão ocorrer após o prazo definido.
+    Decorator= envolve uma TarefaEstudo e aplica penalidade no progresso
+    se a tarefa for concluída após o prazo. Mantém a interface de TarefaEstudo.
     """
 
     def __init__(self, base, prazo=None, penalidade=0.0):
-        status_base = base.status if base.status in (
-            StatusTarefa.A_FAZER, StatusTarefa.EM_ANDAMENTO, StatusTarefa.CONCLUIDA
-        ) else StatusTarefa.A_FAZER
-
+        # Reaproveita dados da tarefa base; o setter de status já valida
         super().__init__(
             titulo=base.titulo,
             descricao=base.descricao,
             data_realizacao=base.data_realizacao,
-            status=status_base
+            status=base.status
         )
-
         self.__base = base
         self.__prazo = None
-        self.prazo = prazo  # usa o setter
+        self.prazo = prazo              # usa setter
+        self.__penalidade = 0.0
+        self.penalidade = penalidade    # usa setter
 
-        try:
-            valor = float(penalidade)
-        except (TypeError, ValueError):
-            valor = 0.0
-        if valor < 0.0:
-            valor = 0.0
-        if valor > 1.0:
-            valor = 1.0
-        self.__penalidade = valor
-
-    # --- propriedades do decorator ---
+    # --- campos adicionais ---
 
     @property
     def prazo(self):
@@ -42,10 +31,7 @@ class TarefaComPrazo(TarefaEstudo):
 
     @prazo.setter
     def prazo(self, valor):
-        """
-        Aceita string 'dd-mm-YYYY HH:MM' ou objeto com .strftime (ex.: datetime).
-        Sem isinstance: tenta strptime; se falhar, tenta usar .strftime; senão mantém None.
-        """
+        # aceita string 'dd-mm-YYYY HH:MM' ou objeto com .strftime (ex.: datetime)
         self.__prazo = None
         if valor is None:
             return
@@ -70,7 +56,7 @@ class TarefaComPrazo(TarefaEstudo):
     def penalidade(self, valor):
         try:
             p = float(valor)
-        except (TypeError, ValueError):
+        except Exception:
             p = 0.0
         if p < 0.0:
             p = 0.0
@@ -82,45 +68,42 @@ class TarefaComPrazo(TarefaEstudo):
 
     def progresso(self):
         """
-        Se houver prazo e a tarefa estiver concluída após o prazo,
-        aplica a penalidade ao progresso da tarefa base.
+        Se houver prazo e a tarefa estiver CONCLUÍDA após o prazo,
+        aplica a penalidade ao progresso da base.
         """
-        progresso_base = self.__base.progresso()
+        progresso_base_tarefa = self.__base.progresso()
 
         if self.__prazo and self.status == StatusTarefa.CONCLUIDA and self.data_realizacao:
             if self.data_realizacao > self.__prazo:
-                fator_penalidade = 1.0 - self.__penalidade
-                if fator_penalidade < 0.0:
-                    fator_penalidade = 0.0
-                progresso_base = progresso_base * fator_penalidade
+                fator = 1.0 - self.__penalidade
+                if fator < 0.0:
+                    fator = 0.0
+                progresso_base_tarefa = progresso_base_tarefa * fator
 
-        if progresso_base < 0.0:
-            progresso_base = 0.0
-        if progresso_base > 1.0:
-            progresso_base = 1.0
-        return progresso_base
+        # garante [0.0, 1.0]
+        if progresso_base_tarefa < 0.0:
+            progresso_base_tarefa = 0.0
+        if progresso_base_tarefa > 1.0:
+            progresso_base_tarefa = 1.0
+        return progresso_base_tarefa
 
     def concluir(self):
-        """
-        Conclui a base e o decorator.
-        """
+        """Conclui a base e registra conclusão aqui."""
         self.__base.concluir()
         self.data_realizacao = datetime.now()
         self.status = StatusTarefa.CONCLUIDA
         self.definir_termino()
 
     def definir_termino(self):
-        # Mantém simples (estilo da prof). Nada específico adicional aqui.
         pass
 
     def exibir_dados(self):
-        texto_base = self.__base.exibir_dados()
-        texto_prazo = self.__prazo.strftime("%d-%m-%Y %H:%M") if self.__prazo else "Sem prazo"
-        texto = "\n".join([
-            texto_base,
+        data_prazo = self.__prazo.strftime("%d-%m-%Y %H:%M") if self.__prazo else "Sem prazo"
+        linhas = [
+            self.__base.exibir_dados(),
             "Decorator: Prazo",
-            f"Prazo: {texto_prazo}",
+            f"Prazo: {data_prazo}",
             f"Penalidade se atrasar: {int(self.__penalidade * 100)}%",
-            f"Progresso (com prazo): {self.progresso()*100:.0f}%"
-        ])
-        return texto
+            f"Progresso (c/ prazo): {self.progresso()*100:.0f}%"
+        ]
+        return "\n".join(linhas)
