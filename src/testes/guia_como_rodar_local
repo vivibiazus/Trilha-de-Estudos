@@ -1,0 +1,45 @@
+# ============================================================
+# Passo a passo — BAIXAR, ABRIR, RODAR DEMO E TESTES (APRESENTAÇÃO)
+# ============================================================
+#   Baixar ZIP:
+#      - GitHub: Code  -> Download ZIP
+#      - Extrair ZIP
+#      - VS Code: File → Open Folder… → selecione a pasta
+#
+# ------------------------------------------------------------
+# 2) ABRIR  VS CODE 
+#    - Instalar pytest para os testes:
+#        pip install pytest
+#
+# ------------------------------------------------------------
+# 3) RODAR
+#    Na raiz do projeto:
+#        python -m src.app.main
+#    Esperado:
+#        Progresso (média simples): 60.0%
+#        Progresso (ponderada por carga): 65.0%
+#
+# ------------------------------------------------------------
+# 4) RODAR OS TESTES
+#
+# ------------------------------------------------------------
+# 5) O QUE CADA TESTE VALIDA
+#    tests/test_tarefas.py
+#      - Progresso correto de Quiz/Leitura/Prática/Projeto
+#      - Tratamento de valores limites (negativos, > máximo)
+#      - Mostra encapsulamento e validação
+#
+#    tests/test_factory.py
+#      - Factory cria a classe correta a partir do Enum TipoTarefa
+#      - Prova do padrão Factory + Enum
+#
+#    tests/test_modelos.py
+#      - Aula calcula média das tarefas
+#      - Curso calcula média das aulas
+#      - Mostra composição e polimorfismo
+#
+#    tests/test_strategy.py
+#      - Estratégias de progresso (média simples e ponderada por carga) geram valores esperados
+#      - Prova do padrão Strategy (flexível)
+#
+# ============================================================
