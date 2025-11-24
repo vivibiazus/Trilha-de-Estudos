@@ -53,6 +53,6 @@ texto_saida = tarefa_com_prazo_texto.exibir_dados()
 print(texto_saida)
 print("Contém 'Prazo:'?                   ", ("Prazo:" in texto_saida))
 print("Contém 'Penalidade se atrasar:'?   ", ("Penalidade se atrasar:" in texto_saida))
-print("Contém 'Progresso (ccom prazo):'?    ", ("Progresso (com prazo):" in texto_saida))
+print("Contém 'Progresso (c/ prazo):'?    ", ("Progresso (c/ prazo):" in texto_saida))
 
 
