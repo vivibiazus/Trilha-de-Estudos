@@ -65,17 +65,17 @@ class TarefaEstudo(ABC):
             self.__status = novo_status
         else:
             self.__status = StatusTarefa.A_FAZER
+    
+# --- derivado do status---
 
-  # --- derivado do status (sem flag duplicada) ---
     @property
     def concluida(self):
         """True se o status está como CONCLUÍDA."""
         return self.status == StatusTarefa.CONCLUIDA
-    
+
     # --- ciclo de vida ---
 
     def concluir(self):
-        self.__concluida = True
         self.status = StatusTarefa.CONCLUIDA
         self.definir_termino()
 
