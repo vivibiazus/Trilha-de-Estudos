@@ -1,4 +1,3 @@
-# --- src/model/TarefaComPrazo.py ---
 from datetime import datetime
 from .TarefaEstudo import TarefaEstudo
 from .StatusTarefa import StatusTarefa
