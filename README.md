@@ -5,6 +5,7 @@ Organiza **Trilhas → Cursos → Aulas → Tarefas** e aplica POO com padrões 
 **Destaques**
 - **Factory**: cria tarefas (quiz, leitura, prática, projeto) a partir de um Enum (`TipoTarefaEstudo`).
 - **Strategy**: calcula o **progresso da trilha** por diferentes métodos (média simples e ponderada por carga horária).
+- **Decorator**: adiciona comportamento de **prazo** a uma tarefa, aplicando **penalidade** se for concluída após a data/hora definida.
 - **Extensões**: espaço para evoluir (lembretes, pré-requisitos, badges).
 
 > **Objetivo**: acompanhar a evolução do estudante em trilhas de aprendizagem, trocando o algoritmo de progresso sem alterar as classes de domínio.
@@ -14,6 +15,7 @@ Organiza **Trilhas → Cursos → Aulas → Tarefas** e aplica POO com padrões 
 - **Estrutura**: uma **Trilha** reúne **Cursos**; cada **Curso** possui **Aulas**; cada **Aula** contém **Tarefas** polimórficas (*Quiz*, *Leitura*, *Prática*, *Projeto*).
 - **Cálculo de progresso**: a **Trilha** recebe uma **Strategy** e delega o cálculo, permitindo alternar o método sem mudar as entidades.
 - **Padronização**: a **Factory** centraliza a criação das tarefas usando `TipoTarefaEstudo`, evitando *ifs* espalhados e erros de digitação.
+- **Regra de prazo (Decorator)**: `TarefaComPrazo` envolve uma tarefa existente e aplica penalidade ao progresso se houver atraso.
 
 
 ### Conceitos-chave
@@ -173,6 +175,7 @@ gerenciador-trilhas-estudo/
    │  ├─ MediaPonderadaPorCargaEstrategia.py
    │  ├─ MediaSimplesEstrategia.py
    │  ├─ StatusTarefa.py
+   │  ├─ TarefaComPrazo.py           
    │  ├─ TarefaEstudo.py
    │  ├─ TarefaFactory.py
    │  ├─ TarefaLeitura.py
@@ -187,7 +190,8 @@ gerenciador-trilhas-estudo/
       ├─ lembrete_como_rodar_local
       ├─ teste_aula_curso_trilha.py
       ├─ teste_factory.py
-      └─ teste_tarefas.py
+      ├─ teste_tarefas.py
+      └─ teste_decorator_prazo.py    
 ```
 
 ## Onde encontram-se os pilares?
@@ -239,8 +243,11 @@ class TarefaQuiz(TarefaEstudo):
         return self.nota / self.nota_max
 ```
 **Padrões**
+Factory: `TarefaFactory`
+Strategy: `MediaSimplesEstrategia`, `MediaPonderadaPorCargaEstrategia`
+Decorator: `TarefaComPrazo`
 
-`Enum + Factory (enxuto)`
+`Enum + Factory`
 ```python
 # --- src/model/TipoTarefaEstudo.py ---
 from enum import Enum
