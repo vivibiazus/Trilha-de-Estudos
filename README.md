@@ -229,7 +229,7 @@ gerenciador-trilhas-estudo/
 ```
 ---
 ## Testes 
-   ```bash
+```bash
    # Tarefas concretas (Leitura, Prática, Quiz, Projeto)
    python testes/teste_tarefas.py
 
