@@ -65,12 +65,10 @@ class TarefaComPrazo(TarefaEstudo):
         if valor is None:
             return
 
-        # Já vem como datetime
         if isinstance(valor, datetime):
             self.__prazo = valor
             return
 
-        # Vem como string
         if isinstance(valor, str):
             try:
                 self.__prazo = datetime.strptime(valor, "%d-%m-%Y %H:%M")
@@ -129,7 +127,6 @@ class TarefaComPrazo(TarefaEstudo):
                 fator = 0.0
             progresso_base *= fator
 
-        # Garante que fique no intervalo [0.0, 1.0]
         if progresso_base < 0.0:
             progresso_base = 0.0
         if progresso_base > 1.0:
@@ -147,11 +144,9 @@ class TarefaComPrazo(TarefaEstudo):
         # Não há regra extra de término além da tarefa base.
 
     def definir_termino(self):
-    """Decorator não adiciona regra extra de término além da tarefa base."""
-    # Aqui não mudamos nada em relação à tarefa base.
-    pass
-
-
+        """Decorator não adiciona regra extra de término além da tarefa base."""
+        # Aqui não mudamos nada em relação à tarefa base.
+        pass
 
     def exibir_dados(self):
         """
@@ -170,4 +165,3 @@ class TarefaComPrazo(TarefaEstudo):
             f"Progresso (com prazo): {self.progresso() * 100:.0f}%",
         ]
         return "\n".join(linhas)
-
