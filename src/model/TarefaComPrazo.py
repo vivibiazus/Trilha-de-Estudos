@@ -147,13 +147,7 @@ class TarefaComPrazo(TarefaEstudo):
         # Não há regra extra de término além da tarefa base.
 
     def definir_termino(self):
-        """
-        Implementação mínima exigida por TarefaEstudo.
-
-        A lógica detalhada de término continua sendo tratada
-        pela tarefa base decorada.
-        """
-        #não adiciona comportamento extra.
+          """Não adiciona comportamento extra ao término."""
         pass
 
     def exibir_dados(self):
