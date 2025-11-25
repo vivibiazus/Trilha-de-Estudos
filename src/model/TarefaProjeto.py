@@ -13,93 +13,119 @@ class TarefaProjeto(TarefaEstudo):
         data_realizacao=None,
         status=StatusTarefa.A_FAZER
     ):
+        """
+        Representa uma tarefa de projeto.
+
+        Aqui vai controlar:
+        - quantas entregas o projeto prevê = total_entregas
+        - quantas entregas já foram aprovadas = entregas_aprovadas 
+        """
+        # Inicializa os dados comuns de qualquer TarefaEstudo
         super().__init__(
             titulo=titulo,
             descricao=descricao,
             data_realizacao=data_realizacao,
             status=status
         )
-# define o total de entregas antes, pois entregas_aprovadas não pode ultrapassar esse valor
+
+        # Inicializa atributos específicos com valores padrão válidos
+        # isso evita problemas de atributo inexistente nos setters
+        self.__total_entregas = 1
+        self.__entregas_aprovadas = 0
+
+        # aplica as regras de validação dos setters
         self.total_entregas = total_entregas
         self.entregas_aprovadas = entregas_aprovadas
 
-    # --- getters e setters ---
+    # --- Atributos específicos do projeto ---
 
     @property
     def total_entregas(self):
+        """Retorna o total de entregas previstas para o projeto."""
         return self.__total_entregas
 
     @total_entregas.setter
     def total_entregas(self, valor):
         """
-        Define o total de entregas como um inteiro >= 1.
-        Se o valor for inválido, assume 1.
+        Define o total de entregas do projeto.
+
+        - Converte o valor para inteiro.
+        - Garante que seja, no mínimo, 1.
+        - Se o valor for inválido, assume 1.
+        - Se já existirem entregas aprovadas, ajusta para não ultrapassar o novo total.
         """
         try:
-            valor_temporario = int(valor)
+            valor_inteiro = int(valor)
         except (TypeError, ValueError):
-            valor_temporario = 1
+            valor_inteiro = 1
 
-        if valor_temporario < 1:
-            valor_temporario = 1
+        if valor_inteiro < 1:
+            valor_inteiro = 1
 
-        self.__total_entregas = valor_temporario
+        self.__total_entregas = valor_inteiro
 
-        # revalida entregas_aprovadas se já existir e estiver fora do limite
-        try:
-            if self.__entregas_aprovadas > self.__total_entregas:
-                self.__entregas_aprovadas = self.__total_entregas
-        except AttributeError:
-            pass
+        # Garante que entregas_aprovadas fique dentro do limite [0, total_entregas]
+        if self.__entregas_aprovadas > self.__total_entregas:
+            self.__entregas_aprovadas = self.__total_entregas
 
     @property
     def entregas_aprovadas(self):
+        """Retorna a quantidade de entregas já aprovadas no projeto."""
         return self.__entregas_aprovadas
 
     @entregas_aprovadas.setter
     def entregas_aprovadas(self, valor):
         """
-        Define entregas aprovadas como inteiro entre 0 e total_entregas.
-        Se o valor for inválido, assume 0.
+        Define quantas entregas já foram aprovadas.
+
+        - Converte o valor para inteiro.
+        - Garante que não seja menor que 0.
+        - Garante que não ultrapasse o total de entregas.
+        - Se o valor for inválido, assume 0.
         """
         try:
-            valor_temporario = int(valor)
+            valor_inteiro = int(valor)
         except (TypeError, ValueError):
-            valor_temporario = 0
+            valor_inteiro = 0
 
-        if valor_temporario < 0:
-            valor_temporario = 0
+        if valor_inteiro < 0:
+            valor_inteiro = 0
 
-        try:
-            if valor_temporario > self.__total_entregas:
-                valor_temporario = self.__total_entregas
-        except AttributeError:
-            # total ainda não setado; apenas garante não-negativo
-            pass
+        if valor_inteiro > self.__total_entregas:
+            valor_inteiro = self.__total_entregas
 
-        self.__entregas_aprovadas = valor_temporario
+        self.__entregas_aprovadas = valor_inteiro
 
-    # --- obrigatórios da hierarquia ---
+    # --- Regra de progresso ---
 
     def progresso(self):
         """
-        Retorna a fração de entregas aprovadas entre 0.0 e 1.0.
+        Calcula o progresso do projeto como fração entre 0.0 e 1.0.
+
+        Exemplo:
+            total_entregas = 4  e  entregas_aprovadas = 2  --> progresso = 0.5 (50%)
         """
         return self.entregas_aprovadas / self.total_entregas
 
     def definir_termino(self):
         """
-        Ao concluir, registra a data de realização como a data/hora atual.
-        O status é definido como CONCLUÍDA em TarefaEstudo.concluir().
+        Ao concluir o projeto, registra a data de realização como a data/hora atual.
+
+        A mudança de status para CONCLUIDA é feita pelo método concluir() herdado de TarefaEstudo.
         """
         self.data_realizacao = datetime.now()
 
-    # --- apresentação ---
+    # --- Apresentação ---
 
     def __str__(self):
+        """Indica que se trata de uma tarefa de projeto e reutiliza o texto base."""
         return f"[Projeto] {super().__str__()}"
 
     def exibir_dados(self):
+        """
+        Devolve um texto com as informações do projeto,
+        incluindo dados básicos da tarefa e o resumo das entregas.
+        """
         base = super().exibir_dados()
         linhas = [
             base,
