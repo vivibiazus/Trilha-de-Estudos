@@ -1,187 +1,187 @@
 # Gerenciador de Estudos e Trilhas de Aprendizagem
 
-Organiza **Trilhas → Cursos → Aulas → Tarefas** e aplica POO com padrões (Factory e Strategy) para manter o código coeso e flexível.
+Projeto em Python que organiza **Trilhas --> Cursos --> Aulas --> Tarefas** e aplica POO com padrões de projeto (**Factory**, **Strategy** e **Decorator**).
 
-**Destaques**
-- **Factory**: cria tarefas (quiz, leitura, prática, projeto) a partir de um Enum (`TipoTarefaEstudo`).
-- **Strategy**: calcula o **progresso da trilha** por diferentes métodos (média simples e ponderada por carga horária).
-- **Decorator**: adiciona comportamento de **prazo** a uma tarefa, aplicando **penalidade** se for concluída após a data/hora definida.
-- **Extensões**: espaço para evoluir (lembretes, pré-requisitos, badges).
+> **Objetivo:** acompanhar a evolução do estudante em trilhas de aprendizagem, permitindo trocar o algoritmo de cálculo de progresso sem modificar as classes de domínio.
 
-> **Objetivo**: acompanhar a evolução do estudante em trilhas de aprendizagem, trocando o algoritmo de progresso sem alterar as classes de domínio.
 ---
-## Visão geral
 
-- **Estrutura**: uma **Trilha** reúne **Cursos**; cada **Curso** possui **Aulas**; cada **Aula** contém **Tarefas** polimórficas (*Quiz*, *Leitura*, *Prática*, *Projeto*).
-- **Cálculo de progresso**: a **Trilha** recebe uma **Strategy** e delega o cálculo, permitindo alternar o método sem mudar as entidades.
-- **Padronização**: a **Factory** centraliza a criação das tarefas usando `TipoTarefaEstudo`, evitando *ifs* espalhados e erros de digitação.
-- **Regra de prazo (Decorator)**: `TarefaComPrazo` envolve uma tarefa existente e aplica penalidade ao progresso se houver atraso.
+## Visão geral da modelagem
 
+- Uma **Trilha** reúne vários **Cursos**.
+- Cada **Curso** possui uma lista de **Aulas**.
+- Cada **Aula** contém uma lista de **Tarefas de estudo** polimórficas:
+  - `TarefaLeitura`
+  - `TarefaPratica`
+  - `TarefaQuiz`
+  - `TarefaProjeto`
+- As tarefas herdam da classe abstrata `TarefaEstudo` e usam o `Enum StatusTarefa` para controlar o ciclo de vida (**A_FAZER**, **EM_ANDAMENTO**, **CONCLUIDA**).
+- O cálculo do **progresso da trilha** é delegado a objetos `EstrategiaProgresso` (padrão **Strategy**).
+- A classe `TarefaComPrazo` envolve uma tarefa existente para aplicar penalidade em caso de atraso (padrão **Decorator**).
+- A criação das tarefas concretas é centralizada em `TarefaFactory`, usando o `Enum TipoTarefaEstudo` (padrão **Factory**).
 
-### Conceitos-chave
+---
+## Padrões e pilares de POO utilizados
 
-- **Enum `TipoTarefaEstudo`** — padroniza os tipos de tarefa e evita erros de digitação:
+### Abstração e Polimorfismo
+
+- `TarefaEstudo` é uma **classe abstrata** que define a interface comum:
+
+  ```python
+  # src/model/TarefaEstudo.py (trecho)
+  from abc import ABC, abstractmethod
+  from .StatusTarefa import StatusTarefa
+
+  class TarefaEstudo(ABC):
+      @abstractmethod
+      def progresso(self) -> float:
+          """Retorna o progresso da tarefa entre 0.0 e 1.0."""
+          pass
+
+      @abstractmethod
+      def definir_termino(self):
+          """Ações específicas ao concluir a tarefa."""
+          pass
+  
+As classes concretas (`TarefaLeitura`, `TarefaPratica``, TarefaQuiz, TarefaProjeto) implementam progresso() de formas diferentes, mas a interface é a mesma.
+Assim, Aula, Curso e Trilha podem tratar qualquer tarefa apenas como TarefaEstudo e chamar progresso() de forma polimórfica.
+
+### Encapsulamento
+
+- Cada classe valida seus próprios dados via @property
+```
+# src/model/TarefaLeitura.py (trecho)
+
+@property
+def total_paginas(self):
+    return self.__total_paginas
+
+@total_paginas.setter
+def total_paginas(self, valor):
+    # garante inteiro >= 1
+    ...
+```
+Isso evita estados inválidos (por exemplo, número de páginas igual a 0, etapas negativas, nota maior que a nota máxima).
+
+###Herança
+
+- As classes de tarefas concretas herdam de TarefaEstudo:
 ```python
-from model.TipoTarefaEstudo import TipoTarefaEstudo
+class TarefaLeitura(TarefaEstudo): ...
+class TarefaPratica(TarefaEstudo): ...
+class TarefaQuiz(TarefaEstudo): ...
+class TarefaProjeto(TarefaEstudo): ...
+```
+TarefaComPrazo também herda de TarefaEstudo, mas funciona como um Decorator, reaproveitando e estendendo o comportamento da tarefa base.
 
-# Opções: LEITURA, QUIZ, PRATICA, PROJETO
-tipo = TipoTarefaEstudo.QUIZ
-# Exemplo: obter o texto amigável
-print(tipo.value)  # "Quiz"
-``` 
-- **Factory `TarefaFactory`** — centraliza a criação das tarefas corretas a partir do `TipoTarefaEstudo`:
+### Enum + Factory
+
+- TipoTarefaEstudo padroniza os tipos de tarefa e evita erros de digitação:
 ```python
+
+# src/model/TipoTarefaEstudo.py (trecho)
+from enum import Enum
+
+class TipoTarefaEstudo(Enum):
+    LEITURA = "Leitura"
+    QUIZ    = "Quiz"
+    PRATICA = "Prática"
+    PROJETO = "Projeto"
+```
+TarefaFactory centraliza a criação das tarefas concretas:
+```python
+# src/model/TarefaFactory.py (exemplo de uso)
 from model.TarefaFactory import TarefaFactory
 from model.TipoTarefaEstudo import TipoTarefaEstudo
 
-quiz = TarefaFactory.criar(
-    TipoTarefaEstudo.QUIZ,
-    titulo="Prova 1",
-    nota=8,       # nota obtida
-    nota_max=10   # nota máxima
+tarefa_quiz = TarefaFactory.criar(
+    tipo=TipoTarefaEstudo.QUIZ,
+    titulo="Prova 1 de POO",
+    nota=8,
+    nota_max=10,
 )
-
-# Ex.: também aceita string
-# leitura = TarefaFactory.criar("leitura", titulo="Cap. 1", total_paginas=50, paginas_lidas=20)
 ```
-- **Strategy de Progresso** — permite trocar o algoritmo de cálculo sem alterar Trilha/Curso/Aula:
+
+### Strategy
+
+- EstrategiaProgresso é uma interface para estratégias de cálculo de progresso da Trilha:
 ```python
-from model.MediaSimplesEstrategia import MediaSimplesEstrategia
-from model.MediaPonderadaPorCargaEstrategia import MediaPonderadaPorCargaEstrategia
+# src/model/EstrategiaProgresso.py (trecho)
+from abc import ABC, abstractmethod
 
-# média aritmética simples entre cursos
-progresso = trilha.progresso(MediaSimplesEstrategia())
-
-# para ponderar por carga horária, troque a estratégia:
-# progresso = trilha.progresso(MediaPonderadaPorCargaEstrategia())
+class EstrategiaProgresso(ABC):
+    @abstractmethod
+    def calcular(self, trilha) -> float:
+        """Recebe uma Trilha e devolve um número entre 0.0 e 1.0."""
+        pass
 ```
----
-## Diagrama de classes
+Implementações concretas:
+```python
+# src/model/MediaSimplesEstrategia.py (trecho)
+from .EstrategiaProgresso import EstrategiaProgresso
 
+class MediaSimplesEstrategia(EstrategiaProgresso):
+    def calcular(self, trilha):
+        cursos = trilha.cursos
+        if not cursos:
+            return 0.0
+        soma_progresso = sum(curso.progresso() for curso in cursos)
+        return soma_progresso / len(cursos)
 
-    class Trilha {
-      - nome: str
-      - cursos: List<Curso>
-      + progresso(estrategia: EstrategiaProgresso): float
-      + exibir_dados(estrategia: EstrategiaProgresso): str
-    }
+# src/model/MediaPonderadaPorCargaEstrategia.py (trecho)
 
-    class Curso {
-      - titulo: str
-      - aulas: List<Aula>
-      - carga_horas: int
-      + progresso(): float
-      + exibir_dados(): str
-    }
+class MediaPonderadaPorCargaEstrategia(EstrategiaProgresso):
+    def calcular(self, trilha):
+        cursos = trilha.cursos
+        if not cursos:
+            return 0.0
 
-    class Aula {
-      - titulo: str
-      - tarefas: List<TarefaEstudo>
-      + adicionar_tarefa(tarefa: TarefaEstudo): None
-      + progresso(): float
-      + exibir_dados(): str
-    }
+        soma_progresso_ponderado = 0.0
+        soma_pesos = 0
 
-    class TarefaEstudo {
-      <<abstract>>
-      - titulo: str
-      - descricao: Optional[str]
-      - data_realizacao: Optional[datetime]
-      - status: StatusTarefa
-      + iniciar_estudo(): None
-      + concluir(): None
-      + progresso(): float
-      + exibir_dados(): str
-      + definir_termino(): None
-    }
+        for curso in cursos:
+            peso_curso = curso.carga_horas or 1
+            soma_progresso_ponderado += curso.progresso() * peso_curso
+            soma_pesos += peso_curso
 
-    class TarefaQuiz {
-      - nota: float
-      - nota_max: float
-      + progresso(): float
-      + exibir_dados(): str
-    }
+        if soma_pesos == 0:
+            return 0.0
 
-    class TarefaLeitura {
-      - total_paginas: int
-      - paginas_lidas: int
-      + progresso(): float
-      + exibir_dados(): str
-    }
-    
-    class TarefaPratica {
-      - total_etapas: int
-      - etapas_concluidas: int
-      + progresso(): float
-      + exibir_dados(): str
-    }
+        return soma_progresso_ponderado / soma_pesos
+```
+A Trilha apenas usa a estratégia recebida:
+```python
+# src/model/Trilha.py (trecho)
 
-    class TarefaProjeto {
-      - total_entregas: int
-      - entregas_aprovadas: int
-      + progresso(): float
-      + exibir_dados(): str
-    }
+def progresso(self, estrategia):
+    if estrategia is None:
+        return 0.0
+    return estrategia.calcular(self)
+```
 
-    class TarefaComPrazo {
-      <<decorator de TarefaEstudo>>
-      - base: TarefaEstudo
-      - prazo: Optional[datetime]
-      - penalidade: float   
-      + progresso(): float  
-      + concluir(): None
-      + exibir_dados(): str
-    }
+### Decorator
 
-    class TarefaFactory {
-      + criar(tipo: TipoTarefaEstudo | str, **kwargs): TarefaEstudo
-    }
+- TarefaComPrazo envolve uma tarefa base (TarefaEstudo) e aplica penalidade se a conclusão ocorrer depois do prazo:
+```python
+# src/model/TarefaComPrazo.py (trecho)
 
-    class EstrategiaProgresso {
-      <<interface>>
-      + calcular(trilha: Trilha): float
-    }    
+def progresso(self):
+    progresso_base = self.__tarefa_base.progresso()
 
-    class MediaSimplesEstrategia {
-      + calcular(trilha: Trilha): float
-    }
+    if (
+        self.__prazo is not None
+        and self.status == StatusTarefa.CONCLUIDA
+        and self.data_realizacao is not None
+        and self.data_realizacao > self.__prazo
+    ):
+        fator = 1.0 - self.__penalidade
+        if fator < 0.0:
+            fator = 0.0
+        progresso_base *= fator
 
-    class MediaPonderadaPorCargaEstrategia {
-      + calcular(trilha: Trilha): float
-    }
-
-    class TipoTarefaEstudo {
-      <<enumeration>>
-      QUIZ
-      LEITURA
-      PRATICA
-      PROJETO
-    }
-
-    class StatusTarefa {
-      <<enumeration>>
-      A_FAZER
-      EM_ANDAMENTO
-      CONCLUIDA
-    }
-
-
-### Relacionamentos
-
-#### Multiplicidade
-- **Trilha (1)** → **(1..*) Curso**
-- **Curso (1)** → **(1..*) Aula**
-- **Aula (1)** → **(0..*) TarefaEstudo**
-
-#### Herança
-- `TarefaQuiz`, `TarefaLeitura`, `TarefaPratica`, `TarefaProjeto` **herdam** de `TarefaEstudo`.
-- `MediaSimplesEstrategia` e `MediaPonderadaPorCargaEstrategia` **implementam** `EstrategiaProgresso`.
-
-#### Dependências
-- `Trilha` **usa** `EstrategiaProgresso` para calcular o progresso.
-- `TarefaFactory` **cria** `TarefaEstudo` e **usa** `TipoTarefaEstudo` para decidir qual classe instanciar.
-
-
+    ...
+    return progresso_base
+```
 --- 
 # Estrutura do projeto, pilares de POO e padrões
 ```text
@@ -195,7 +195,7 @@ gerenciador-trilhas-estudo/
    │  ├─ MediaPonderadaPorCargaEstrategia.py
    │  ├─ MediaSimplesEstrategia.py
    │  ├─ StatusTarefa.py
-   │  ├─ TarefaComPrazo.py           
+   │  ├─ TarefaComPrazo.py
    │  ├─ TarefaEstudo.py
    │  ├─ TarefaFactory.py
    │  ├─ TarefaLeitura.py
@@ -205,129 +205,39 @@ gerenciador-trilhas-estudo/
    │  ├─ TipoTarefaEstudo.py
    │  ├─ Trilha.py
    │  └─ __init__.py
-   └─ tests/
-      ├─ __init__.py
-      ├─ lembrete_como_rodar_local
-      ├─ teste_aula_curso_trilha.py
-      ├─ teste_factory.py
-      ├─ teste_tarefas.py
-      └─ teste_decorator_prazo.py    
+   ├─ testes/
+   │  ├─ __init__.py
+   │  ├─ guia_como_rodar_local.py
+   │  ├─ teste_aula_curso_trilha.py
+   │  ├─ teste_decorator_prazo.py
+   │  ├─ teste_factory.py
+   │  └─ teste_tarefas.py
+   └─ diagrama_uml    
 ```
+---
+Como executar os testes de exemplo
 
-## Onde encontram-se os pilares?
+No VS Code: 
 
-**Abstração**  
-`TarefaEstudo` define a interface comum (`progresso`, `exibir_dados`) sem expor detalhes do cálculo:
+Abra o terminal integrado (Terminal → New Terminal).
 
-```python
-# --- src/model/TarefaEstudo.py ---
-from abc import ABC, abstractmethod
+Navegue até a pasta src:
 
-class TarefaEstudo(ABC):
-    @abstractmethod
-    def progresso(self) -> float: ...
-    
-    def exibir_dados(self) -> str:
-        return f"{self.__class__.__name__}: {self.progresso()*100:.0f}%"
-````
-**Herança e Polimorfismo**  
-Subclasses implementam o cálculo, e Aula/Curso/Trilha usam polimorfismo ao chamar `progresso()`:
-
-```python
-# --- src/model/TarefaLeitura.py ---
-from .TarefaEstudo import TarefaEstudo
-
-class TarefaLeitura(TarefaEstudo):
-    def __init__(self, titulo, total_paginas, paginas_lidas=0, descricao=None, data_realizacao=None):
-        self.titulo = titulo or "Leitura"
-        self.total_paginas = max(1, int(total_paginas))
-        self.paginas_lidas = max(0, int(paginas_lidas))
-
-    def progresso(self) -> float:
-        return min(1.0, self.paginas_lidas / self.total_paginas)
-```
-**Encapsulamento**  
-Cada tarefa mantém e valida seus próprios dados (limites e consistência):
-
-```python
-# --- src/model/TarefaQuiz.py ---
-from .TarefaEstudo import TarefaEstudo
-
-class TarefaQuiz(TarefaEstudo):
-    def __init__(self, titulo, nota, nota_max=10, descricao=None, data_realizacao=None):
-        self.titulo = titulo or "Quiz"
-        self.nota_max = max(1.0, float(nota_max))
-        self.nota = max(0.0, min(float(nota), self.nota_max))
-
-    def progresso(self) -> float:
-        return self.nota / self.nota_max
-```
-**Padrões**
-Factory: `TarefaFactory`
-Strategy: `MediaSimplesEstrategia`, `MediaPonderadaPorCargaEstrategia`
-Decorator: `TarefaComPrazo`
-
-`Enum + Factory`
-```python
-# --- src/model/TipoTarefaEstudo.py ---
-from enum import Enum
-
-class TipoTarefaEstudo(Enum):
-    LEITURA = "Leitura"
-    QUIZ    = "Quiz"
-    PRATICA = "Prática"
-    PROJETO = "Projeto"
+cd src
 
 
-# --- Exemplo de uso da Factory ---
-from model.TarefaFactory import TarefaFactory
-from model.TipoTarefaEstudo import TipoTarefaEstudo
+Execute os arquivos de teste desejados:
 
-t1 = TarefaFactory.criar(TipoTarefaEstudo.QUIZ, titulo="Prova 1", nota=8, nota_max=10)
-t2 = TarefaFactory.criar("leitura",             titulo="Cap. 1",  total_paginas=50, paginas_lidas=20)
+# Tarefas concretas (Leitura, Prática, Quiz, Projeto)
+python testes/teste_tarefas.py
 
-print(round(t1.progresso(), 2))  # 0.80
-print(round(t2.progresso(), 2))  # 0.40
-```
+# Decorator (TarefaComPrazo)
+python testes/teste_decorator_prazo.py
 
-`Strategy`
+# Aula, Curso, Trilha e Strategy
+python testes/teste_aula_curso_trilha.py
 
-```python
-# --- src/model/EstrategiaProgresso.py ---
-from abc import ABC, abstractmethod
+# Factory + Enum TipoTarefaEstudo
+python testes/teste_factory.py
 
-class EstrategiaProgresso(ABC):
-    @abstractmethod
-    def calcular(self, trilha) -> float: ...
-    
-
-# --- src/model/MediaSimplesEstrategia.py ---
-from .EstrategiaProgresso import EstrategiaProgresso
-
-class MediaSimplesEstrategia(EstrategiaProgresso):
-    def calcular(self, trilha) -> float:
-        cursos = trilha.cursos
-        return 0.0 if not cursos else sum(c.progresso() for c in cursos) / len(cursos)
-
-
-from model.MediaSimplesEstrategia import MediaSimplesEstrategia
-
-progresso = trilha.progresso(MediaSimplesEstrategia())
-```
-
-`Composição (Aula → Tarefas, Curso → Aulas, Trilha → Cursos)`
-
-```python
-# --- src/model/Aula.py ---
-from statistics import mean
-
-class Aula:
-    def __init__(self, titulo: str):
-        self.titulo = titulo
-        self.tarefas = []
-
-    def adicionar_tarefa(self, tarefa):
-        self.tarefas.append(tarefa)
-
-    def progresso(self) -> float:
-        return 0.0 if not self.tarefas else mean(t.progresso() for t in self.tarefas)
+---
