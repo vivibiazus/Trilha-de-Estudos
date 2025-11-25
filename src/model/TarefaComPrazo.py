@@ -147,8 +147,11 @@ class TarefaComPrazo(TarefaEstudo):
         # Não há regra extra de término além da tarefa base.
 
     def definir_termino(self):
-          """Não adiciona comportamento extra ao término."""
-        pass
+    """Decorator não adiciona regra extra de término além da tarefa base."""
+    # Aqui não mudamos nada em relação à tarefa base.
+    pass
+
+
 
     def exibir_dados(self):
         """
