@@ -64,7 +64,7 @@ def total_paginas(self, valor):
 ```
 Isso evita estados inválidos, como número de páginas igual a 0, valores negativos ou configurações inconsistentes em relação às regras de cada tarefa.
 
-###Herança
+### Herança
 
 - As classes de tarefas concretas herdam de TarefaEstudo:
 ```python
