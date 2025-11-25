@@ -1,0 +1,125 @@
+    class Trilha {
+      - nome: str
+      - cursos: List<Curso>
+      + adicionar_curso(curso: Curso): None
+      + progresso(estrategia: EstrategiaProgresso): float
+      + exibir_dados(estrategia: EstrategiaProgresso | None): str
+    }
+
+    class Curso {
+      - titulo: str
+      - carga_horas: int
+      - aulas: List<Aula>
+      + adicionar_aula(aula: Aula): None
+      + progresso(): float
+      + exibir_dados(): str
+    }
+
+    class Aula {
+      - titulo: str
+      - tarefas: List<TarefaEstudo>
+      + adicionar_tarefa(tarefa: TarefaEstudo): None
+      + progresso(): float
+      + exibir_dados(): str
+    }
+
+    class TarefaEstudo {
+      <<abstract>>
+      - titulo: str
+      - descricao: str | None
+      - data_realizacao: datetime | None
+      - status: StatusTarefa
+      + iniciar_estudo(): None
+      + concluir(): None
+      + concluida: bool
+      + progresso(): float
+      + definir_termino(): None
+      + exibir_dados(): str
+    }
+
+    class TarefaLeitura {
+      - total_paginas: int
+      - paginas_lidas: int
+      + progresso(): float
+      + definir_termino(): None
+      + exibir_dados(): str
+    }
+
+    class TarefaPratica {
+      - total_etapas: int
+      - etapas_concluidas: int
+      + progresso(): float
+      + definir_termino(): None
+      + exibir_dados(): str
+    }
+
+    class TarefaQuiz {
+      - nota: float
+      - nota_max: float
+      + progresso(): float
+      + definir_termino(): None
+      + exibir_dados(): str
+    }
+
+    class TarefaProjeto {
+      - total_entregas: int
+      - entregas_aprovadas: int
+      + progresso(): float
+      + definir_termino(): None
+      + exibir_dados(): str
+    }
+
+    class TarefaComPrazo {
+      <<decorator de TarefaEstudo>>
+      - prazo: datetime | None
+      - penalidade: float
+      - tarefa_base: TarefaEstudo
+      + progresso(): float
+      + concluir(): None
+      + definir_termino(): None
+      + exibir_dados(): str
+    }
+
+    class TarefaFactory {
+      + criar(tipo_tarefa: str, **kwargs): TarefaEstudo
+    }
+
+    class EstrategiaProgresso {
+      <<interface>>
+      + calcular(trilha: Trilha): float
+    }
+
+    class MediaSimplesEstrategia {
+      + calcular(trilha: Trilha): float
+    }
+
+    class MediaPonderadaPorCargaEstrategia {
+      + calcular(trilha: Trilha): float
+    }
+
+    class StatusTarefa {
+      <<enumeration>>
+      A_FAZER
+      EM_ANDAMENTO
+      CONCLUIDA
+    }
+
+### Relacionamentos
+
+- **Multiplicidade**
+  - `Trilha (1)` → `(0..*) Curso`
+  - `Curso (1)` → `(0..*) Aula`
+  - `Aula (1)` → `(0..*) TarefaEstudo`
+
+- **Herança**
+  - `TarefaLeitura`, `TarefaPratica`, `TarefaQuiz`, `TarefaProjeto`, `TarefaComPrazo`
+    **herdam** de `TarefaEstudo`.
+  - `MediaSimplesEstrategia` e `MediaPonderadaPorCargaEstrategia`
+    **implementam** `EstrategiaProgresso`.
+
+- **Dependências**
+  - `Trilha` **usa** `EstrategiaProgresso` para calcular o progresso.
+  - `Aula` **usa** `TarefaEstudo` (composição).
+  - `Curso` **usa** `Aula` (composição).
+  - `TarefaComPrazo` **decora** uma `TarefaEstudo`.
+  - `TarefaFactory` **cria** instâncias de `TarefaEstudo` concretas.
