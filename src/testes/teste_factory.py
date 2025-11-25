@@ -1,39 +1,68 @@
 from model.TarefaFactory import TarefaFactory
 from model.TipoTarefaEstudo import TipoTarefaEstudo
-from model.TarefaLeitura import TarefaLeitura
-from model.TarefaQuiz import TarefaQuiz
-from model.TarefaPratica import TarefaPratica
-from model.TarefaProjeto import TarefaProjeto
 
-def eh_classe(obj, nome_classe: str) -> bool:
-    return obj.__class__.__name__ == nome_classe
 
-print("\n=== Teste da TarefaFactory ===")
+def testar_com_enum():
+    print("\n=== FACTORY COM ENUM ===")
 
-# 1) Criação por STRING
-q = TarefaFactory.criar("quiz", titulo="Prova 1", nota=8, nota_max=10)
-print(eh_classe(q, "TarefaQuiz"), q.exibir_dados(), sep="\n")
+    tarefa_leitura = TarefaFactory.criar(
+        tipo=TipoTarefaEstudo.LEITURA,
+        titulo="Capítulo 2 - Factory",
+        total_paginas=50,
+        paginas_lidas=10,
+        descricao="Leitura sobre o padrão Factory",
+    )
 
-l = TarefaFactory.criar("leitura", titulo="Capítulo 1", total_paginas=50, paginas_lidas=20)
-print(eh_classe(l, "TarefaLeitura"), l.exibir_dados(), sep="\n")
+    tarefa_quiz = TarefaFactory.criar(
+        tipo=TipoTarefaEstudo.QUIZ,
+        titulo="Quiz Factory",
+        nota=9,
+        nota_max=10,
+    )
 
-p = TarefaFactory.criar("pratica", titulo="Lab 1", total_etapas=6, etapas_concluidas=3)
-print(eh_classe(p, "TarefaPratica"), p.exibir_dados(), sep="\n")
+    print("\nTarefa criada (LEITURA via Enum):")
+    print(tarefa_leitura)
+    print(tarefa_leitura.exibir_dados())
 
-pj = TarefaFactory.criar("projeto", titulo="Projeto Final", total_entregas=4, entregas_aprovadas=1)
-print(eh_classe(pj, "TarefaProjeto"), pj.exibir_dados(), sep="\n")
+    print("\nTarefa criada (QUIZ via Enum):")
+    print(tarefa_quiz)
+    print(tarefa_quiz.exibir_dados())
 
-# 2) Criação por ENUM
-l2 = TarefaFactory.criar(TipoTarefaEstudo.LEITURA, titulo="Capítulo 2", total_paginas=30, paginas_lidas=15)
-print(eh_classe(l2, "TarefaLeitura"), l2.exibir_dados(), sep="\n")
 
-# 3) Erros esperados (campos obrigatórios faltando)
-try:
-    TarefaFactory.criar("leitura", titulo="Capítulo sem total")
-except Exception as e:
-    print("Erro (ok - faltou total_paginas):", e)
+def testar_com_string():
+    print("\n=== FACTORY COM STRING ===")
 
-try:
-    TarefaFactory.criar("quiz", titulo="Prova sem nota")
-except Exception as e:
-    print("Erro (ok - faltou nota):", e)
+    tarefa_pratica = TarefaFactory.criar(
+        tipo="pratica",  # deve aceitar string, normalizando internamente
+        titulo="Exercícios de Factory",
+        total_etapas=5,
+        etapas_concluidas=1,
+    )
+
+    tarefa_projeto = TarefaFactory.criar(
+        tipo="projeto",
+        titulo="Projeto Final POO",
+        total_entregas=3,
+        entregas_aprovadas=0,
+        descricao="Projeto integrador da disciplina",
+    )
+
+    print("\nTarefa criada (PRÁTICA via string):")
+    print(tarefa_pratica)
+    print(tarefa_pratica.exibir_dados())
+
+    print("\nTarefa criada (PROJETO via string):")
+    print(tarefa_projeto)
+    print(tarefa_projeto.exibir_dados())
+
+
+if __name__ == "__main__":
+    testar_com_enum()
+    testar_com_string()
+
+"""
+- criação de tarefas usando o Enum TipoTarefaEstudo; --- não sei se manterei -- verificar
+- criação de tarefas usando string (ex.: "leitura").
+"""
+
+
