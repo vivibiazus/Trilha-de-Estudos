@@ -28,7 +28,7 @@ Projeto em Python que organiza **Trilhas → Cursos → Aulas → Tarefas** e ap
 
 - `TarefaEstudo` é uma **classe abstrata** que define a interface comum das tarefas de estudo:
 
-  ```python
+```python
   # src/model/TarefaEstudo.py (trecho)
   from abc import ABC, abstractmethod
   from .StatusTarefa import StatusTarefa
@@ -43,6 +43,7 @@ Projeto em Python que organiza **Trilhas → Cursos → Aulas → Tarefas** e ap
       def definir_termino(self):
           """Ações específicas ao concluir a tarefa."""
           pass
+```
 As classes concretas (`TarefaLeitura`, `TarefaPratica`, `TarefaQuiz`, `TarefaProjeto`) implementam `progresso()` de formas diferentes, mas a assinatura do método é a mesma.
 
 Dessa forma, `Aula`, `Curso` e `Trilha` podem tratar qualquer tarefa apenas como `TarefaEstudo` e chamar `progresso()` de forma polimórfica, sem precisar saber qual é o subtipo exato de tarefa.
@@ -50,7 +51,7 @@ Dessa forma, `Aula`, `Curso` e `Trilha` podem tratar qualquer tarefa apenas como
 ### Encapsulamento
 
 - Cada classe de tarefa valida e protege seus próprios dados usando `@property`, garantindo consistência interna.
-```
+```python
 # src/model/TarefaLeitura.py (trecho)
 
 @property
@@ -196,6 +197,18 @@ def progresso(self):
 ```
 Dessa forma, o comportamento da tarefa original é reutilizado e apenas **estendido** com a lógica de prazo e penalidade, garantindo que o resultado final permaneça entre `0.0` e `1.0`.
 
+### Resumo das classes principais
+
+- **Trilha**: agrega vários cursos e calcula o progresso usando uma estratégia (Strategy).
+- **Curso**: agrupa aulas e calcula o progresso médio das aulas.
+- **Aula**: contém uma lista de tarefas de estudo polimórficas.
+- **TarefaEstudo** (abstrata): define a interface comum (`progresso`, `definir_termino`, `exibir_dados`) e o ciclo de vida (`status`).
+- **TarefaLeitura / TarefaPratica / TarefaQuiz / TarefaProjeto**: implementam regras específicas de progresso.
+- **TarefaComPrazo** (Decorator): envolve uma tarefa e adiciona a lógica de prazo + penalidade.
+- **StatusTarefa** (Enum): controla o ciclo de vida da tarefa (`A_FAZER`, `EM_ANDAMENTO`, `CONCLUIDA`).
+- **EstrategiaProgresso** + `MediaSimplesEstrategia` / `MediaPonderadaPorCargaEstrategia`: aplicam o padrão Strategy para o cálculo do progresso da trilha.
+- **TarefaFactory**: centraliza a criação das tarefas concretas a partir de um tipo textual.
+
 --- 
 # Estrutura do projeto, pilares de POO e padrões
 ```text
@@ -228,7 +241,7 @@ gerenciador-trilhas-estudo/
    └─ diagrama_uml    
 ```
 ---
-## Testes 
+## Testes
 ```bash
    # Tarefas concretas (Leitura, Prática, Quiz, Projeto)
    python testes/teste_tarefas.py
