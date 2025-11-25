@@ -242,17 +242,16 @@ gerenciador-trilhas-estudo/
 ```
 ---
 ## Testes
+Dentro da pasta `src`, execute:
 ```bash
-   # Tarefas concretas (Leitura, Prática, Quiz, Projeto)
-   python testes/teste_tarefas.py
+# Tarefas concretas (Leitura, Prática, Quiz, Projeto)
+python -m testes.teste_tarefas
 
-   # Decorator (TarefaComPrazo)
-   python testes/teste_decorator_prazo.py
+# Decorator (TarefaComPrazo)
+python -m testes.teste_decorator_prazo
 
-   # Aula, Curso, Trilha e Strategy
-   python testes/teste_aula_curso_trilha.py
+# Aula, Curso, Trilha e Strategy
+python -m testes.teste_aula_curso_trilha
 
-   # Factory (TarefaFactory)
-   python testes/teste_factory.py
-
----
+# Factory (TarefaFactory)
+python -m testes.teste_factory
