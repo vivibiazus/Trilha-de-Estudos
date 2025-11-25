@@ -1,47 +1,132 @@
-from model.TarefaQuiz import TarefaQuiz
+from datetime import datetime
+from model.StatusTarefa import StatusTarefa
 from model.TarefaLeitura import TarefaLeitura
 from model.TarefaPratica import TarefaPratica
+from model.TarefaQuiz import TarefaQuiz
 from model.TarefaProjeto import TarefaProjeto
-from model.StatusTarefa import StatusTarefa
 
-print("\n=== Teste das Tarefas (progresso, concluir, exibir) ===")
 
-# --- QUIZ ---
-q = TarefaQuiz(titulo="Prova 1", nota=12, nota_max=10)  # deve capar em 10/10
-print(q.exibir_dados())
-print("Progresso Quiz (esperado 100%):", f"{q.progresso()*100:.0f}%")
-q.concluir()
-print("Após concluir:", q.status == StatusTarefa.CONCLUIDA, q.data_realizacao is not None)
+def testar_tarefa_leitura():
+    print("\n=== TAREFA LEITURA ===")
+    tarefa_leitura = TarefaLeitura(
+        titulo="Capítulo 1 - POO",
+        total_paginas=100,
+        paginas_lidas=30,
+        descricao="Introdução à orientação a objetos",
+    )
 
-# --- LEITURA ---
-l = TarefaLeitura(titulo="Capítulo 1", total_paginas=50, paginas_lidas=20)
-print(l.exibir_dados())
-print("Progresso Leitura (esperado 40%):", f"{l.progresso()*100:.0f}%")
+    print("Antes de concluir:")
+    print(tarefa_leitura)
+    print(tarefa_leitura.exibir_dados())
+    print(f"Progresso inicial: {tarefa_leitura.progresso():.2f}\n")
 
-# bordas
-l.paginas_lidas = -5
-print("Lidas negativas → 0:", l.paginas_lidas == 0)
-l.paginas_lidas = 999
-print("Lidas acima do total → total:", l.paginas_lidas == l.total_paginas)
+    # Simula leitura de mais páginas e conclusão
+    tarefa_leitura.paginas_lidas = 100
+    tarefa_leitura.concluir()
 
-# --- PRÁTICA ---
-p = TarefaPratica(titulo="Lab 1", total_etapas=6, etapas_concluidas=3)
-print(p.exibir_dados())
-print("Progresso Prática (esperado 50%):", f"{p.progresso()*100:.0f}%")
+    print("Depois de concluir:")
+    print(tarefa_leitura.exibir_dados())
+    print(f"Progresso final: {tarefa_leitura.progresso():.2f}")
 
-# bordas
-p.etapas_concluidas = -1
-print("Concluídas negativas → 0:", p.etapas_concluidas == 0)
-p.total_etapas = 2
-print("Reduzi total; concluídas capadas:", p.etapas_concluidas <= p.total_etapas)
 
-# --- PROJETO ---
-pj = TarefaProjeto(titulo="Projeto Final", total_entregas=4, entregas_aprovadas=1)
-print(pj.exibir_dados())
-print("Progresso Projeto (esperado 25%):", f"{pj.progresso()*100:.0f}%")
+def testar_tarefa_pratica():
+    print("\n=== TAREFA PRÁTICA ===")
+    tarefa_pratica = TarefaPratica(
+        titulo="Lista de exercícios 01",
+        total_etapas=10,
+        etapas_concluidas=4,
+        descricao="Exercícios sobre variáveis e tipos",
+    )
 
-# bordas
-pj.entregas_aprovadas = 10
-print("Aprovadas acima do total → total:", pj.entregas_aprovadas == pj.total_entregas)
-pj.entregas_aprovadas = -3
-print("Aprovadas negativas → 0:", pj.entregas_aprovadas == 0)
+    print("Antes de concluir:")
+    print(tarefa_pratica)
+    print(tarefa_pratica.exibir_dados())
+    print(f"Progresso inicial: {tarefa_pratica.progresso():.2f}\n")
+
+    # Simula avanço das etapas e conclusão
+    tarefa_pratica.etapas_concluidas = 10
+    tarefa_pratica.concluir()
+
+    print("Depois de concluir:")
+    print(tarefa_pratica.exibir_dados())
+    print(f"Progresso final: {tarefa_pratica.progresso():.2f}")
+
+
+def testar_tarefa_quiz():
+    print("\n=== TAREFA QUIZ ===")
+    tarefa_quiz = TarefaQuiz(
+        titulo="Quiz de Herança",
+        nota=7.5,
+        nota_max=10,
+        descricao="Avaliação rápida sobre herança e polimorfismo",
+    )
+
+    print("Situação do quiz:")
+    print(tarefa_quiz)
+    print(tarefa_quiz.exibir_dados())
+    print(f"Progresso (nota/nota_max): {tarefa_quiz.progresso():.2f}")
+
+    # Ajusta nota para mostrar validação
+    tarefa_quiz.nota = 11  # deve ser limitado a nota_max
+    print("\nApós tentar definir nota = 11 (limite em nota_max):")
+    print(tarefa_quiz.exibir_dados())
+    print(f"Progresso ajustado: {tarefa_quiz.progresso():.2f}")
+
+
+def testar_tarefa_projeto():
+    print("\n=== TAREFA PROJETO ===")
+    tarefa_projeto = TarefaProjeto(
+        titulo="Projeto de Banco de Dados",
+        total_entregas=4,
+        entregas_aprovadas=1,
+        descricao="Modelagem + scripts SQL + documentação",
+    )
+
+    print("Antes de concluir:")
+    print(tarefa_projeto)
+    print(tarefa_projeto.exibir_dados())
+    print(f"Progresso inicial: {tarefa_projeto.progresso():.2f}\n")
+
+    tarefa_projeto.entregas_aprovadas = 4
+    tarefa_projeto.concluir()
+
+    print("Depois de concluir:")
+    print(tarefa_projeto.exibir_dados())
+    print(f"Progresso final: {tarefa_projeto.progresso():.2f}")
+
+
+def testar_polimorfismo():
+    """
+    uma lista de TarefaEstudo com diferentes tipos concretos,
+    todos expondo progresso().
+    """
+    print("\n=== POLIMORFISMO COM LISTA DE TAREFAS ===")
+
+    tarefas_estudo = [
+        TarefaLeitura("Artigo sobre Strategy", total_paginas=20, paginas_lidas=10),
+        TarefaPratica("Exercícios de listas", total_etapas=5, etapas_concluidas=3),
+        TarefaQuiz("Quiz de Decorator", nota=8, nota_max=10),
+        TarefaProjeto("Projeto POO", total_entregas=3, entregas_aprovadas=1),
+    ]
+
+    for tarefa in tarefas_estudo: # Todas respondem a progresso() e exibir_dados()
+        print("\n---")
+        print(tarefa)
+        print(f"Tipo concreto: {tarefa.__class__.__name__}")
+        print(f"Progresso: {tarefa.progresso():.2f}")
+
+
+if __name__ == "__main__":
+    testar_tarefa_leitura()
+    testar_tarefa_pratica()
+    testar_tarefa_quiz()
+    testar_tarefa_projeto()
+    testar_polimorfismo()
+
+"""
+Teste das classes de tarefas de estudo.
+- TarefaLeitura
+- TarefaPratica
+- TarefaQuiz
+- TarefaProjeto
+"""
