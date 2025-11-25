@@ -1,12 +1,11 @@
 from model.TarefaFactory import TarefaFactory
-from model.TipoTarefaEstudo import TipoTarefaEstudo
 
 
-def testar_com_enum():
-    print("\n=== FACTORY COM ENUM ===")
+def testar_factory_leitura_quiz():
+    print("\n=== FACTORY COM STRINGS (LEITURA E QUIZ) ===")
 
     tarefa_leitura = TarefaFactory.criar(
-        tipo=TipoTarefaEstudo.LEITURA,
+        tipo_tarefa="leitura",
         titulo="Capítulo 2 - Factory",
         total_paginas=50,
         paginas_lidas=10,
@@ -14,33 +13,33 @@ def testar_com_enum():
     )
 
     tarefa_quiz = TarefaFactory.criar(
-        tipo=TipoTarefaEstudo.QUIZ,
+        tipo_tarefa="quiz",
         titulo="Quiz Factory",
         nota=9,
         nota_max=10,
     )
 
-    print("\nTarefa criada (LEITURA via Enum):")
+    print("\nTarefa criada (LEITURA via string):")
     print(tarefa_leitura)
     print(tarefa_leitura.exibir_dados())
 
-    print("\nTarefa criada (QUIZ via Enum):")
+    print("\nTarefa criada (QUIZ via string):")
     print(tarefa_quiz)
     print(tarefa_quiz.exibir_dados())
 
 
-def testar_com_string():
-    print("\n=== FACTORY COM STRING ===")
+def testar_factory_pratica_projeto():
+    print("\n=== FACTORY COM STRINGS (PRÁTICA E PROJETO) ===")
 
     tarefa_pratica = TarefaFactory.criar(
-        tipo="pratica",  # deve aceitar string, normalizando internamente
+        tipo_tarefa="pratica",
         titulo="Exercícios de Factory",
         total_etapas=5,
         etapas_concluidas=1,
     )
 
     tarefa_projeto = TarefaFactory.criar(
-        tipo="projeto",
+        tipo_tarefa="projeto",
         titulo="Projeto Final POO",
         total_entregas=3,
         entregas_aprovadas=0,
@@ -57,12 +56,12 @@ def testar_com_string():
 
 
 if __name__ == "__main__":
-    testar_com_enum()
-    testar_com_string()
+    testar_factory_leitura_quiz()
+    testar_factory_pratica_projeto()
 
 """
-- criação de tarefas usando o Enum TipoTarefaEstudo; --- não sei se manterei -- verificar
-- criação de tarefas usando string (ex.: "leitura").
+Mostra:
+- criação de tarefas usando a TarefaFactory a partir de strings:
+  "leitura", "quiz", "pratica", "projeto".
+- cada tipo concreto aplica sua própria regra de progresso().
 """
-
-
