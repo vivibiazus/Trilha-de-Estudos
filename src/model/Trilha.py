@@ -2,14 +2,11 @@ class Trilha:
     def __init__(self, nome):
         """
         Representa uma trilha de estudos.
-        Uma trilha = por vários cursos 
+
+        Uma trilha é formada por vários cursos
         e é usada pelas estratégias de progresso para calcular um valor agregado.
         """
-       # Usa o setter de nome (self.nome = ...) porque ele já:
-       # - converte o valor para string;
-       # - remove espaços extras;
-       # - aplica .title();
-       # - define "Trilha" se nada for informado.
+        # self.nome chama o setter, que cuida da validação e formatação do nome.
         self.nome = nome
 
         # Lista de cursos que fazem parte desta trilha.
@@ -61,9 +58,8 @@ class Trilha:
 
         Parâmetros:
             estrategia: objeto que implementa o método calcular(trilha),
-            como MediaSimplesEstrategia ou MediaPonderadaPorCargaEstrategia.
+                        como MediaSimplesEstrategia ou MediaPonderadaPorCargaEstrategia.
 
-                       
         Retorna:
             Número entre 0.0 e 1.0 representando o progresso total.
             Se nenhuma estratégia for informada, retorna 0.0.
@@ -95,4 +91,3 @@ class Trilha:
             linhas.append(f"Progresso da trilha: {progresso_trilha:.0f}%")
 
         return "\n".join(linhas)
-
