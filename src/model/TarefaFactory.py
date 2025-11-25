@@ -3,84 +3,101 @@ from .TarefaQuiz import TarefaQuiz
 from .TarefaPratica import TarefaPratica
 from .TarefaProjeto import TarefaProjeto
 
+
 class TarefaFactory:
     @staticmethod
-    def criar(tipo, **dados):
+    def criar(tipo_tarefa: str, **args):
         """
-        Cria uma tarefa de estudo de acordo com o 'tipo'.
-        Aceita:
-          - string: "leitura", "quiz", "pratica", "projeto"
+        Cria e retorna uma tarefa de estudo.
+        """
+        # leitura:
+        #   precisa: total_paginas
+        #   opcionais: titulo, paginas_lidas, descricao, data_realizacao
+        # quiz:
+        #   precisa: nota
+        #   opcionais: titulo, nota_max, descricao, data_realizacao
+        # pratica:
+        #   precisa: total_etapas
+        #   opcionais: titulo, etapas_concluidas, descricao, data_realizacao
+        # projeto:
+        #   precisa: total_entregas
+        #   opcionais: titulo, entregas_aprovadas, descricao, data_realizacao
 
-        Parâmetros esperados por tipo:
-          leitura -> titulo, total_paginas, (paginas_lidas=0), descricao, data_realizacao
-          quiz    -> titulo, nota, (nota_max=10), descricao, data_realizacao
-          pratica -> titulo, total_etapas, (etapas_concluidas=0), descricao, data_realizacao
-          projeto -> titulo, total_entregas, (entregas_aprovadas=0), descricao, data_realizacao
-        """
-        if not tipo:
+        if not tipo_tarefa:
             raise ValueError("Tipo de tarefa não informado.")
 
-        chave = str(tipo).strip().lower()
+        tipo_normalizado = str(tipo_tarefa).strip().lower()
 
         # --- LEITURA ---
-        if chave == "leitura":
-            total_paginas = dados.get("total_paginas")
+        if tipo_normalizado == "leitura":
+            total_paginas = args.get("total_paginas")
             if total_paginas is None:
                 raise ValueError("Para 'leitura', informe 'total_paginas'.")
-            titulo = dados.get("titulo") or "Leitura"
-            paginas_lidas = dados.get("paginas_lidas", 0)
+
+            titulo = args.get("titulo", "Leitura")
+            paginas_lidas = args.get("paginas_lidas", 0)
+
             return TarefaLeitura(
                 titulo=titulo,
                 total_paginas=total_paginas,
                 paginas_lidas=paginas_lidas,
-                descricao=dados.get("descricao"),
-                data_realizacao=dados.get("data_realizacao"),
+                descricao=args.get("descricao"),
+                data_realizacao=args.get("data_realizacao"),
             )
 
         # --- QUIZ ---
-        if chave == "quiz":
-            nota = dados.get("nota")
+        if tipo_normalizado == "quiz":
+            nota = args.get("nota")
             if nota is None:
                 raise ValueError("Para 'quiz', informe 'nota'.")
-            titulo = dados.get("titulo") or "Quiz"
-            nota_max = dados.get("nota_max", 10)
+
+            titulo = args.get("titulo", "Quiz")
+            nota_max = args.get("nota_max", 10)
+
             return TarefaQuiz(
                 titulo=titulo,
                 nota=nota,
                 nota_max=nota_max,
-                descricao=dados.get("descricao"),
-                data_realizacao=dados.get("data_realizacao"),
+                descricao=args.get("descricao"),
+                data_realizacao=args.get("data_realizacao"),
             )
 
         # --- PRÁTICA ---
-        if chave == "pratica":
-            total_etapas = dados.get("total_etapas")
+        if tipo_normalizado == "pratica":
+            total_etapas = args.get("total_etapas")
             if total_etapas is None:
                 raise ValueError("Para 'pratica', informe 'total_etapas'.")
-            titulo = dados.get("titulo") or "Prática"
-            etapas_concluidas = dados.get("etapas_concluidas", 0)
+
+            titulo = args.get("titulo", "Prática")
+            etapas_concluidas = args.get("etapas_concluidas", 0)
+
             return TarefaPratica(
                 titulo=titulo,
                 total_etapas=total_etapas,
                 etapas_concluidas=etapas_concluidas,
-                descricao=dados.get("descricao"),
-                data_realizacao=dados.get("data_realizacao"),
+                descricao=args.get("descricao"),
+                data_realizacao=args.get("data_realizacao"),
             )
 
         # --- PROJETO ---
-        if chave == "projeto":
-            total_entregas = dados.get("total_entregas")
+        if tipo_normalizado == "projeto":
+            total_entregas = args.get("total_entregas")
             if total_entregas is None:
                 raise ValueError("Para 'projeto', informe 'total_entregas'.")
-            titulo = dados.get("titulo") or "Projeto"
-            entregas_aprovadas = dados.get("entregas_aprovadas", 0)
+
+            titulo = args.get("titulo", "Projeto")
+            entregas_aprovadas = args.get("entregas_aprovadas", 0)
+
             return TarefaProjeto(
                 titulo=titulo,
                 total_entregas=total_entregas,
                 entregas_aprovadas=entregas_aprovadas,
-                descricao=dados.get("descricao"),
-                data_realizacao=dados.get("data_realizacao"),
+                descricao=args.get("descricao"),
+                data_realizacao=args.get("data_realizacao"),
             )
 
         # --- tipo inválido ---
-        raise ValueError("Tipo de tarefa inválido. Use: leitura, quiz, pratica ou projeto.")
+        raise ValueError(
+            "Tipo de tarefa inválido. Use: 'leitura', 'quiz', 'pratica' ou 'projeto'."
+        )
+
