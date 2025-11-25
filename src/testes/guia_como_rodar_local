@@ -1,29 +1,36 @@
 # Guia rápido para executar os testes do projeto
-
-# Passo 1 – abrir o terminal na raiz do repositório (pasta "src").
-#- Menu: Terminal → New Terminal ou atalho: Ctrl + `
-
-# Passo 2 – entrar na pasta src: 
-#     cd src
-
-# Passo 3 – executar cada arquivo:
-
-#  - Testes das tarefas concretas (Leitura, Prática, Quiz, Projeto)
-#       python testes/teste_tarefas.py
-
-#  - Testes do Decorator (TarefaComPrazo)
-#       python testes/teste_decorator_prazo.py
-
-#  - Testes de Aula, Curso, Trilha + Strategy
-#       python testes/teste_aula_curso_trilha.py
-
-#  - Testes da Factory + Enum TipoTarefaEstudo
-#       python testes/teste_factory.py
-
+# =============================================
+#
+# Passo 1 – abrir o VS Code na pasta do projeto (Trilha-de-Estudos-main).
+#
+# Passo 2 – abrir o terminal integrado:
+#   Menu: Terminal -> New Terminal
+#
+# Passo 3 – entrar na pasta src:
+#   cd src
+#
+# Passo 4 – executar os arquivos de teste usando o módulo "testes":
+#
+#   -- Testes das tarefas concretas (Leitura, Prática, Quiz, Projeto)
+#   python -m testes.teste_tarefas
+#
+#   -- Testes do Decorator (TarefaComPrazo)
+#   python -m testes.teste_decorator_prazo
+#
+#   -- Testes de Aula, Curso, Trilha e Strategy
+#   python -m testes.teste_aula_curso_trilha
+#
+#   -- Testes da Factory (TarefaFactory)
+#   python -m testes.teste_factory
+#
 # Observação:
-# - Cada um imprime no console os resultados dos métodos
-#   __str__(), exibir_dados(), progresso(), etc.
-
-# Para rodar todos em sequência, executar os comandos um após o outro no terminal.
-
-
+#   - Cada um desses arquivos imprime no console os resultados dos métodos
+#     (__str__(), exibir_dados(), progresso(), etc.).
+#   - Para rodar todos em sequência, execute os comandos um após o outro
+#     no mesmo terminal.
+#
+# Sobre o comando "python" x "python3":
+#   - No Windows normalmente o comando é "python".
+#   - Se "python --version" não funcionar, tente:
+#       python3 --version
+#     e use o comando que funcionar nos exemplos acima.
