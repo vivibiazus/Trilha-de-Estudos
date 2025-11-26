@@ -242,7 +242,7 @@ gerenciador-trilhas-estudo/
 ---
 ## Testes
 Dentro da pasta `src`, execute:
-```bash
+```python
 # Tarefas concretas (Leitura, Prática, Quiz, Projeto)
 python -m testes.teste_tarefas
 
@@ -254,3 +254,182 @@ python -m testes.teste_aula_curso_trilha
 
 # Factory (TarefaFactory)
 python -m testes.teste_factory
+```
+###Teste das tarefas concretas 
+
+**(teste_tarefas.py)**
+
+Comando:
+```python
+python -m testes.teste_tarefas
+```
+
+**O que esse teste faz**
+
+- Cria exemplos de: `TarefaLeitura`, `TarefaPratica`, `TarefaQuiz`, `TarefaProjeto`.
+- Atualiza o estado de cada tarefa (páginas lidas, etapas concluídas, nota, entregas aprovadas) e chama `concluir()`.
+- Mostra a evolução do progresso antes e depois de concluir.
+
+**Como cada tipo de tarefa calcula o progresso**
+
+- **Leitura** → `paginas_lidas / total_paginas`
+- **Prática** → `etapas_concluidas / total_etapas`
+- **Quiz** → `nota / nota_max`
+- **Projeto** → `entregas_aprovadas / total_entregas`
+
+É montada uma lista de `TarefaEstudo` com tarefas de tipos diferentes, e o código percorre a lista chamando apenas `progresso()`.
+**polimorfismo**: o código não precisa saber se é leitura, prática, quiz ou projeto; ele só chama `progresso()`.
+
+**Exemplo de saída**
+
+```text
+=== TAREFA LEITURA ===
+Antes de concluir:
+Status: A FAZER
+Progresso: 0.30
+
+Depois de concluir:
+Status: CONCLUIDA
+Progresso: 1.00
+```
+
+**Decorator de prazo (teste_decorator_prazo.py)**
+
+Comando:
+```python
+python -m testes.teste_decorator_prazo
+```
+
+**O que esse teste faz**
+
+- Usa a classe `TarefaComPrazo` como **Decorator** em cima de uma tarefa base.
+- Testa dois cenários:
+  - **Sem atraso** → prazo no futuro, nenhuma penalidade aplicada.
+  - **Com atraso** → prazo no passado, aplica penalidade no progresso.
+
+**Pontos importantes do código**
+
+- `TarefaComPrazo` recebe uma `TarefaEstudo` interna (composição) e:
+  - Reaproveita o progresso original da tarefa.
+  - Ajusta o valor final de `progresso()` aplicando a penalidade se estiver atrasada.
+- Mostra o padrão **Decorator**: altera o comportamento da tarefa sem modificar o código das classes concretas.
+
+**Exemplo de saída**
+
+```text
+=== DECORATOR - CASO SEM ATRASO ===
+Progresso (sem atraso): 1.00
+
+=== DECORATOR - CASO COM ATRASO ===
+Progresso (com atraso): 0.50
+````
+
+**Trilha, cursos, aulas e Strategy (teste_aula_curso_trilha.py)**
+
+Comando:
+```python
+python -m testes.teste_aula_curso_trilha
+```
+
+**O que esse teste faz**
+
+- Cria uma trilha de estudos com:
+  - Curso de **POO em Python** com duas aulas e várias tarefas.
+  - Curso de **Estruturas de Dados** com uma aula prática.
+- Associa esses cursos a uma `Trilha`.
+- Depois, calcula o progresso da trilha com duas estratégias diferentes:
+  - `MediaSimplesEstrategia` → média simples dos progressos dos cursos.
+  - `MediaPonderadaPorCargaEstrategia` → média ponderada usando a carga horária de cada curso como peso.
+
+- A classe `Trilha` recebe um objeto que implementa `EstrategiaProgresso`.
+- A trilha chama  `estrategia.calcular(self)` para obter o progresso.
+- Isso demonstra o padrão **Strategy**: O algoritmo de cálculo do progresso da trilha muda trocando apenas o objeto estratégia, sem alterar o código de `Trilha`.
+
+**Exemplo de saída**
+
+```text
+=== DETALHES DOS CURSOS DA TRILHA ===
+Curso: Poo Em Python
+Progresso do curso: 55%
+
+Curso: Estruturas De Dados
+Progresso do curso: 50%
+
+=== PROGRESSO DA TRILHA ===
+(Strategy: Média simples)   -> 0.5250
+(Strategy: Média ponderada) -> 0.5200
+```
+
+**Factory de tarefas (teste_factory.py)**
+
+Comando:
+```python
+python -m testes.teste_factory
+```
+
+**O que esse teste faz**
+
+- Usa `TarefaFactory` para centralizar a criação das tarefas.
+- O método estático `criar(tipo_tarefa, **args)`:
+  - Recebe uma string (`"leitura"`, `"pratica"`, `"quiz"`, `"projeto"`).
+  - Valida os parâmetros obrigatórios (`total_paginas`, `nota_max`, etc.).
+  - Retorna a instância da subclasse correta.
+
+**Pontos importantes do código**
+
+- Demonstra o padrão **Factory**:
+  - O código que usa as tarefas não precisa saber qual classe concreta instanciar.
+  - A lógica de criação fica isolada dentro da `TarefaFactory`.
+
+**Exemplo**
+
+```python
+t1 = TarefaFactory.criar(
+    tipo_tarefa="leitura",
+    titulo="Capítulo 1 - POO",
+    total_paginas=100
+)
+
+t2 = TarefaFactory.criar(
+    tipo_tarefa="quiz",
+    titulo="Quiz de Herança",
+    nota_max=10
+)
+````
+
+### Resumo dos conceitos de POO e padrões usados
+
+- `Trilha` → `Curso` → `Aula` → `TarefaEstudo` (`TarefaLeitura`, `TarefaPratica`, `TarefaQuiz`, `TarefaProjeto`)
+
+##### Pilares de POO no código
+
+**Abstração**
+
+- `TarefaEstudo` como classe base abstrata.
+- `EstrategiaProgresso` como contrato para as estratégias de cálculo.
+
+**Herança**
+
+- `TarefaLeitura`, `TarefaPratica`, `TarefaQuiz`, `TarefaProjeto` herdam de `TarefaEstudo`.
+
+**Encapsulamento**
+
+- Uso de `@property` para validar atributos (nota, páginas, etapas, prazos).
+
+**Polimorfismo**
+
+- Lista de `TarefaEstudo` tratada de forma genérica, chamando `progresso()` em qualquer tipo de tarefa.
+- Diferentes estratégias de progresso tratadas como `EstrategiaProgresso`.
+
+##### Padrões de projeto aplicados
+
+- **Strategy**: cálculo do progresso da trilha com estratégias flexíveis.
+- **Decorator**: `TarefaComPrazo` alterando o comportamento da tarefa base.
+- **Factory**: `TarefaFactory` centralizando a criação das tarefas concretas(recebe um `tipo_tarefa`, ex.: `"leitura"`, `"pratica"`, `"quiz"`, `"projeto"`) e retorna a instância da subclasse correspondente.
+
+
+
+
+
+
+
