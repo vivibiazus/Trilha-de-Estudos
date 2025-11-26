@@ -29,20 +29,19 @@ Projeto em Python que organiza **Trilhas → Cursos → Aulas → Tarefas** e ap
 - `TarefaEstudo` é uma **classe abstrata** que define a interface comum das tarefas de estudo:
 
 ```python
-  # src/model/TarefaEstudo.py (trecho)
-  from abc import ABC, abstractmethod
-  from .StatusTarefa import StatusTarefa
+from abc import ABC, abstractmethod
+from .StatusTarefa import StatusTarefa
 
-  class TarefaEstudo(ABC):
-      @abstractmethod
-      def progresso(self) -> float:
-          """Retorna o progresso da tarefa entre 0.0 e 1.0."""
-          pass
+class TarefaEstudo(ABC):
+    @abstractmethod
+    def progresso(self):
+        """Retorna o progresso da tarefa entre 0.0 e 1.0."""
+        pass
 
-      @abstractmethod
-      def definir_termino(self):
-          """Ações específicas ao concluir a tarefa."""
-          pass
+    @abstractmethod
+    def definir_termino(self):
+        """Ações específicas ao concluir a tarefa."""
+        pass
 ```
 As classes concretas (`TarefaLeitura`, `TarefaPratica`, `TarefaQuiz`, `TarefaProjeto`) implementam `progresso()` de formas diferentes, mas a assinatura do método é a mesma.
 
